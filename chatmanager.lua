@@ -108,15 +108,10 @@ function ChatGui:set_params(params, ...)
 	self.additional_data = params.additional_data
 	if self.additional_data ~= nil then
 		if chat_button_panel ~= nil then
-			if self.additional_data.save_pos then
-				if self.crimenet_chat_button_panel_position == nil then
-					self.crimenet_chat_button_panel_position = {}
-					self.crimenet_chat_button_panel_position.x = chat_button_panel:x()
-					self.crimenet_chat_button_panel_position.y = chat_button_panel:y()
-				end
-			end
 
-			if self.additional_data.button_panel_vert_offset then
+			--i should start deleting these comments they clutter hella alot but i am keeping them just incase i guess?
+
+			--[[if self.additional_data.button_panel_vert_offset then
 				-- Where did the magic number 11 come from? Search for the following line in lib/managers/chatmanager.lua:
 				-- chat_button:set_bottom(chat_button_panel:h() - 11)
 				if self.additional_data.align_to_wallet and alive(Global.wallet_panel) then
@@ -140,8 +135,27 @@ function ChatGui:set_params(params, ...)
 				chat_button_panel:set_x(self.crimenet_chat_button_panel_position.x)
 				chat_button_panel:set_y(self.crimenet_chat_button_panel_position.y) --this is the culprit
 				-- Yes, retrieve this again the next time this function gets called
+			end]]
+			if self.additional_data.align_to_wallet and alive(Global.wallet_panel) then
+				chat_button_panel:set_bottom(Global.wallet_panel:child("wallet_skillpoint_text"):top() + 11 + self.additional_data.button_panel_vert_offset)
+			else
+				if self.additional_data.save_pos then --disgusting but it works so wheres the problem?
+					if self.crimenet_chat_button_panel_position == nil then
+						chat_button_panel:set_bottom(Global.wallet_panel:child("wallet_skillpoint_text"):bottom() - 1) --realign and save position since it fucks it stuff when we open inventory first
+						self.crimenet_chat_button_panel_position = {}
+						self.crimenet_chat_button_panel_position.x = chat_button_panel:x()
+						self.crimenet_chat_button_panel_position.y = chat_button_panel:y()
+					elseif self.crimenet_chat_button_panel_position ~= nil then
+						chat_button_panel:set_x(self.crimenet_chat_button_panel_position.x)
+						chat_button_panel:set_y(self.crimenet_chat_button_panel_position.y)
+					else
+						log("icaps no position wtf?")
+					end
+				end
 			end
-		
+
+			self._panel:set_bottom(self._hud_panel:child("chat_button_panel"):child("chat_button"):world_top())
+
 			-- Yep, even if additional_data.playerstates_position_override is nil
 			InventoryChatAndPlayerStates.position_override = self.additional_data.playerstates_position_override
 

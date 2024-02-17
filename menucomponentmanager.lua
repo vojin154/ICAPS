@@ -1,4 +1,6 @@
-
+--[[
+	THIS CHANGES THE CHAT BUTTON POSITION
+]]
 if InventoryChatAndPlayerStates_MenuComponentManager_Hooked then
 	return
 else
@@ -9,6 +11,7 @@ end
 local components_to_find = {
 	-- Affects the perk decks screen
 	skilltree = {
+		--_saved_game_chat_params = "inventory",
 		-- This field works as intended for horizontal positioning of the chat GUI
 		left = 0,
 		-- This field has no influence on chat GUI positioning at all since it gets stomped anyway by taking its vertical
@@ -21,7 +24,7 @@ local components_to_find = {
 		chat_blur = true,
 		chat_bg_alpha = 0.25,
 		is_crimenet_chat = true,
-		--chat_button_align = "left",
+		chat_button_align = "left",
 		-- Additional data that gets read by this mod's ChatGui:set_params() hook
 		additional_data = {
 			save_pos = false,
@@ -44,13 +47,14 @@ local components_to_find = {
 		]]
 	},
 	crimenet = {
+		--_saved_game_chat_params = "crimenet",
 		left = 0,
 		bottom = 0,
 		layer = tweak_data.gui.CRIMENET_CHAT_LAYER,
 		chat_blur = true,
 		chat_bg_alpha = 0.25,
 		is_crimenet_chat = true,
-		-- Additional data that gets read by this mod's ChatGui:set_params() hook
+		-- Additional data that gets read by this mod's ChatGui:set_params() hook]]
 		additional_data = {
 			save_pos = true,
 			click_through_output_bg = true,
@@ -61,7 +65,7 @@ local components_to_find = {
 				x = "left",
 				y = "bottom",
 				x_offset = 0,
-				y_offset = -30,
+				y_offset = -30, -- -30,
 				-- Take reference from the top of the chat_bg panel instead when the chat panel is open
 				open_y_reference = "chat_bg",
 				-- Additional vertical offset to apply
@@ -85,9 +89,16 @@ components_to_find.preview_node = components_to_find.skilltree
 components_to_find.skilltree_new = components_to_find.skilltree
 components_to_find.mutators_list = components_to_find.skilltree
 components_to_find.crew_management = components_to_find.skilltree
+-- essentially adding chat  and states to the rest of the stuff that was added later
+components_to_find.leakedrecording_mission = components_to_find.skilltree
+components_to_find.social_hub = components_to_find.skilltree
+components_to_find.story_missions = components_to_find.skilltree
+
+components_to_find.achievement_list = deep_clone(components_to_find.skilltree)
+components_to_find.achievement_list.additional_data.button_panel_vert_offset = -5 --figure out where to put the states in achievements gui bcs the current is disgusting
 
 components_to_find.custom_safehouse = deep_clone(components_to_find.skilltree)
-components_to_find.custom_safehouse.additional_data.button_panel_vert_offset = -15
+--components_to_find.custom_safehouse.additional_data.button_panel_vert_offset = -15
 
 local preplanning_map = {
 	left = 10,
@@ -140,12 +151,15 @@ local function MenuComponentManager_set_active_components_hook(self, components,
 
 	local data = components_to_find[components[1]]
 	if data ~= nil then
-		if table.index_of(components, "crimenet_chats") == -1 then
+		if table.index_of(components, "inventory_chats") == 2 then --to ensure inventory chat is aligned from the start instead of setting it to a crimenet chat position and then overriding it
+			--Nothing
+		elseif table.index_of(components, "crimenet_chats") == -1 then
 			table.insert(components, "crimenet_chats")
 		end
 
 		-- This gets read by MenuComponentManager:_create_crimenet_chats_gui()
 		self._saved_game_chat_params = data
+		--self._saved_game_chat_params = data._saved_game_chat_params
 	elseif components[1] == "preplanning_map" then
 		-- Preplanning-specific configuration
 		self._saved_game_chat_params = preplanning_map
