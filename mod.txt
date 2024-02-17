@@ -3,7 +3,7 @@
 	"description" : "Enables accessing chat and viewing the states of other players in the lobby while in the inventory, blackmarket, preplanning, Crime.net, skills and perk deck selection screens",
 	"author" : "\n    Snh20\n    TdlQ (localizations loading code)\n    Mr.PlayYou [BE] (French translations)\n    vojin154 (Updated to meet/work in the current versions code)",
 	"blt_version" : 2,
-	"version" : "0.0.3.3.1",
+	"version" : "0.0.3.4",
 	"priority" : 10,
 	"color" : "0.15 0.15 0.15",
 	"image" : "_icon.png",
