@@ -11,7 +11,6 @@ end
 local components_to_find = {
 	-- Affects the perk decks screen
 	skilltree = {
-		--_saved_game_chat_params = "inventory",
 		-- This field works as intended for horizontal positioning of the chat GUI
 		left = 0,
 		-- This field has no influence on chat GUI positioning at all since it gets stomped anyway by taking its vertical
@@ -20,7 +19,9 @@ local components_to_find = {
 		-- since ChatGui:set_params() checks for the presence of /both/ the left and bottom fields before calling
 		-- ChatGui:set_leftbottom()
 		bottom = 0,
-		layer = tweak_data.gui.CRIMENET_CHAT_LAYER,
+		layer = 48, --tweak_data.gui.CRIMENET_CHAT_LAYER, based on tweakdata.lua its 1000
+		--changing it to 48 bcs not only it doesnt have to be THIS HIGH for the guis that its currently set to
+		--but to avoid clipping through the inventory profile selector and still maintain layer above bg, blur, etc
 		chat_blur = true,
 		chat_bg_alpha = 0.25,
 		is_crimenet_chat = true,
@@ -32,22 +33,8 @@ local components_to_find = {
 			button_panel_vert_offset = -10,
 			align_to_wallet = true
 		}
-
-		--[[
-		inventory = {
-			chat_button_y_offset = 25,
-			left = 0,
-			is_crimenet_chat = true,
-			chat_bg_alpha = 0.75,
-			chat_button_align = "left",
-			chat_blur = true,
-			bottom = 0,
-			layer = tweak_data.gui.CRIMENET_CHAT_LAYER
-		}
-		]]
 	},
 	crimenet = {
-		--_saved_game_chat_params = "crimenet",
 		left = 0,
 		bottom = 0,
 		layer = tweak_data.gui.CRIMENET_CHAT_LAYER,
@@ -89,7 +76,7 @@ components_to_find.preview_node = components_to_find.skilltree
 components_to_find.skilltree_new = components_to_find.skilltree
 components_to_find.mutators_list = components_to_find.skilltree
 components_to_find.crew_management = components_to_find.skilltree
--- essentially adding chat  and states to the rest of the stuff that was added later
+-- essentially adding chat  and states to the rest of the stuff that was added later in later updates
 components_to_find.leakedrecording_mission = components_to_find.skilltree
 components_to_find.social_hub = components_to_find.skilltree
 components_to_find.story_missions = components_to_find.skilltree
