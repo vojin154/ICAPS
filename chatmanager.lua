@@ -222,7 +222,6 @@ Hooks:PostHook(ChatGui, "set_params", "CHANGEME_ChatGui_set_params", function(se
 				-- Yes, retrieve this again the next time this function gets called
 			end]]
 			if self.additional_data.align_to_wallet and alive(Global.wallet_panel) then
-				log("no wallet?")
 				chat_button_panel:set_bottom(Global.wallet_panel:child("wallet_skillpoint_text"):top() + 11 + self.additional_data.button_panel_vert_offset)
 			else
 				if self.additional_data.save_pos then --disgusting but it works so wheres the problem?
