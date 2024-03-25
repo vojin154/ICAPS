@@ -1,4 +1,4 @@
-if InventoryChatAndPlayerStates_SkillTreeGui_Hooked then
+--[[if InventoryChatAndPlayerStates_SkillTreeGui_Hooked then
 	return
 else
 	InventoryChatAndPlayerStates_SkillTreeGui_Hooked = true
@@ -44,4 +44,4 @@ function SkillTreeGui:stop_spec_place_points(...)
 	if MenuCallbackHandler:is_multiplayer() and managers.network:session() then
 		RealignSpecializationPointsText(self)
 	end
-end
+end]]

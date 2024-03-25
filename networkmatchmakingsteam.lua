@@ -1,4 +1,4 @@
-
+--[[
 if InventoryChatAndPlayerStates_NetworkMatchMakingSTEAM_Hooked then
 	return
 else
@@ -15,4 +15,4 @@ function NetworkMatchMakingSTEAM._on_data_update(lobby_data, ...)
 	end
 
 	return _on_data_update_actual(lobby_data, ...)
-end
+end]]

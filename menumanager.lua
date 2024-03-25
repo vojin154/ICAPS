@@ -7,12 +7,17 @@ end
 
 -- Called from ConnectionNetworkHandler:set_menu_sync_state_index() whenever a player's menu state changes (e.g. Ready, In
 -- inventory, etc.)
-local _set_peer_sync_state_actual = MenuManager._set_peer_sync_state
+--[[local _set_peer_sync_state_actual = MenuManager._set_peer_sync_state
 function MenuManager:_set_peer_sync_state(peer_id, state, ...)
 	_set_peer_sync_state_actual(self, peer_id, state, ...)
 
 	InventoryChatAndPlayerStates:UpdatePlayerStates(peer_id, state)
-end
+end]]
+
+
+Hooks:PostHook(MenuManager, "_set_peer_sync_state", "_set_peer_sync_state_icaps", function(self, peer_id, state, ...)
+	InventoryChatAndPlayerStates:UpdatePlayerStates(peer_id, state)
+end)
 
 -- This list is by no means exhaustive. This list includes the weapon/mask selection tabs since those do not have the 'sync_state'
 -- field either (all of these GUIs assume PlayerInventoryGUI as the entry point since it sets sync_state upon entry). This would
@@ -51,7 +56,7 @@ local componenttabnames = {
 }
 
 local menu_component_tabs = nil
-local _node_selected_actual = MenuManager._node_selected
+--[[local _node_selected_actual = MenuManager._node_selected
 function MenuManager:_node_selected(menu_name, node, ...)
 	_node_selected_actual(self, menu_name, node, ...)
 
@@ -67,4 +72,20 @@ function MenuManager:_node_selected(menu_name, node, ...)
 			break
 		end
 	end
-end
+end]]
+
+
+Hooks:PostHook(MenuManager, "_node_selected", "_node_selected_icaps", function(self, menu_name, node, ...)
+	-- Ugly workaround for state synching when customizing weapons or masks (why wasn't this implemented, OVK? You do realize
+	-- that not implementing this only causes hosts to ignore players who are in the inventory anyway since that state text never
+	-- changes to show that they are actually actively doing something)
+	menu_component_tabs = node and node:parameters() and node:parameters().menu_component_tabs or nil
+	if menu_name == "menu_main" and menu_component_tabs ~= nil then
+		for name, __ in pairs(menu_component_tabs) do
+			if componenttabnames[name] then
+				self:set_and_send_sync_state(componenttabnames[name])
+			end
+			break
+		end
+	end
+end)

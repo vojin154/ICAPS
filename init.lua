@@ -164,22 +164,27 @@ end
 -- From HUDMissionBriefing:set_slot_joining()
 local function animate_joining(panel)
 	local t = 0
+	local end_t = 0
 	local sin = math.sin
-	while true do
-		t = (t + coroutine.yield()) % 1
+	repeat
+		local yield = coroutine.yield()
+		end_t = end_t + yield
+		t = (t + yield) % 1
 		panel:set_alpha(0.3 + 0.7 * sin(t * 180))
-	end
+	until end_t >= 3
+	panel:set_alpha(0)
 end
 
 -- From ChatGui:start_notify_new_message()
-local function ready_pulse(panel)
-	--todo: make pulse timed for 2 secs instead of infinite
+local function pulse(panel)
 
 	local lerp = math.lerp
 	local abs = math.abs
 	local cos = math.cos
 	local Application = _G.Application
 	local time = Application.time
+	local t = 0
+	local length = 3.95
 	-- Don't bother with a lead-in fade since they are synchronized to Application:time() anyway. Yes, there will be
 	-- an ugly pop-in for the flash, but I don't really care about that right now since they all need to be
 	-- synchronized
@@ -188,11 +193,12 @@ local function ready_pulse(panel)
 --	end)
 	-- Change the '3' below to actually alter the flash interval (in seconds)
 	local interval = 1 / 3
-	while true do
+	repeat
+		t = t + coroutine.yield()
 		-- Using Application:time() instead of progress to ensure that all instances are synchronized
-		coroutine.yield()
 		panel:set_alpha(abs(cos(time(Application) * 360 * interval)) * 0.6)
-	end
+	until t >= length
+	panel:set_alpha(0)
 end
 
 function InventoryChatAndPlayerStates:UpdatePlayerStates(peer_id, menustate)
@@ -204,12 +210,13 @@ function InventoryChatAndPlayerStates:UpdatePlayerStates(peer_id, menustate)
 	local text, connected, islocalplayer, ready = self:GetPeerStates(peer_id, menustate)
 	local tmp_panel = playerstates_panel:child(tostring(peer_id) .. "_callsign")
 	if alive(tmp_panel) then
-		tmp_panel:set_color(tweak_data.chat_colors[peer_id]:with_alpha(connected and not islocalplayer and 1 or 0.35))
+		tmp_panel:set_color(tweak_data.chat_colors[peer_id]:with_alpha(connected and 1 or 0.35))
 	end
 	tmp_panel = playerstates_panel:child(tostring(peer_id) .. "_state")
 	if alive(tmp_panel) then
 		tmp_panel:set_text(text)
-		tmp_panel:set_color(connected and not islocalplayer and tweak_data.screen_colors.text or tweak_data.menu.default_disabled_text_color)
+		--tmp_panel:set_color(connected and not islocalplayer and tweak_data.screen_colors.text or tweak_data.menu.default_disabled_text_color)
+		tmp_panel:set_color(connected and Color.white or tweak_data.menu.default_disabled_text_color)
 
 		local playerstate = self.PeerStates[peer_id]
 		if playerstate ~= nil and playerstate.state == self.StateValues.InitialJoin then
@@ -222,9 +229,9 @@ function InventoryChatAndPlayerStates:UpdatePlayerStates(peer_id, menustate)
 
 	tmp_panel = playerstates_panel:child(tostring(peer_id) .. "_flash")
 	if alive(tmp_panel) then
-		if connected and not islocalplayer and ready then
+		if connected and not islocalplayer then
 			tmp_panel:stop()
-			tmp_panel:animate(ready_pulse)
+			tmp_panel:animate(pulse)
 		else
 			tmp_panel:stop()
 			tmp_panel:set_alpha(0)

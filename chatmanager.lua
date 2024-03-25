@@ -94,7 +94,7 @@ local function CreatePlayerStatesPanel(chatgui, parent_panel)
 	return playerstates_panel
 end
 
-local set_params_actual = ChatGui.set_params
+--[=[local set_params_actual = ChatGui.set_params
 
 function ChatGui:set_params(params, ...)
 	set_params_actual(self, params, ...)
@@ -180,10 +180,96 @@ function ChatGui:set_params(params, ...)
 		-- Halt any fade animations
 		self._panel:stop()
 	end
-end
+end]=]
+
+
+Hooks:PostHook(ChatGui, "set_params", "CHANGEME_ChatGui_set_params", function(self, params, ...)
+	local chat_button_panel = self._hud_panel:child("chat_button_panel")
+	if chat_button_panel ~= nil and not alive(chat_button_panel) then
+		chat_button_panel = nil
+	end
+
+	-- Yep, even if params.additional_data is nil
+	self.additional_data = params.additional_data
+	if self.additional_data ~= nil then
+		if chat_button_panel ~= nil then
+
+			--i should start deleting these comments they clutter hella alot but i am keeping them just incase i guess?
+
+			--[[if self.additional_data.button_panel_vert_offset then
+				-- Where did the magic number 11 come from? Search for the following line in lib/managers/chatmanager.lua:
+				-- chat_button:set_bottom(chat_button_panel:h() - 11)
+				if self.additional_data.align_to_wallet and alive(Global.wallet_panel) then
+					if self.crimenet_chat_button_panel_position == nil then
+						self.crimenet_chat_button_panel_position = {}
+						self.crimenet_chat_button_panel_position.x = chat_button_panel:x()
+						self.crimenet_chat_button_panel_position.y = chat_button_panel:y()
+					end
+
+					chat_button_panel:set_bottom(Global.wallet_panel:child("wallet_skillpoint_text"):top() + 11 + self.additional_data.button_panel_vert_offset)
+					chat_button_panel:set_center_x(Global.wallet_panel:child("wallet_money_text"):right() - 10)
+				else
+					--chat_button_panel:set_bottom(chat_button_panel:parent():h() + 11 + self.additional_data.button_panel_vert_offset)
+				end
+				-- Ensure that the chat panel is aligned properly from the beginning
+				self._panel:set_bottom(self._hud_panel:child("chat_button_panel"):child("chat_button"):world_top())
+
+			
+				-- Ugly workaround to get the show/hide chat button back to its original position in Crime.net and Preplanning
+			elseif self.crimenet_chat_button_panel_position ~= nil then
+				chat_button_panel:set_x(self.crimenet_chat_button_panel_position.x)
+				chat_button_panel:set_y(self.crimenet_chat_button_panel_position.y) --this is the culprit
+				-- Yes, retrieve this again the next time this function gets called
+			end]]
+			if self.additional_data.align_to_wallet and alive(Global.wallet_panel) then
+				log("no wallet?")
+				chat_button_panel:set_bottom(Global.wallet_panel:child("wallet_skillpoint_text"):top() + 11 + self.additional_data.button_panel_vert_offset)
+			else
+				if self.additional_data.save_pos then --disgusting but it works so wheres the problem?
+					if self.crimenet_chat_button_panel_position == nil then
+						chat_button_panel:set_bottom(Global.wallet_panel:child("wallet_skillpoint_text"):bottom() - 1) --realign and save position since it fucks it stuff when we open inventory first
+						self.crimenet_chat_button_panel_position = {}
+						self.crimenet_chat_button_panel_position.x = chat_button_panel:x()
+						self.crimenet_chat_button_panel_position.y = chat_button_panel:y()
+					elseif self.crimenet_chat_button_panel_position ~= nil then
+						chat_button_panel:set_x(self.crimenet_chat_button_panel_position.x)
+						chat_button_panel:set_y(self.crimenet_chat_button_panel_position.y)
+					else
+						log("icaps no position wtf?")
+					end
+				end
+			end
+
+			self._panel:set_bottom(self._hud_panel:child("chat_button_panel"):child("chat_button"):world_top())
+
+			-- Yep, even if additional_data.playerstates_position_override is nil
+			InventoryChatAndPlayerStates.position_override = self.additional_data.playerstates_position_override
+
+			--[[if self._playerstates ~= nil then
+				log("cleared")
+				chat_button_panel:child("playerstates"):clear()
+				--chat_button_panel:remove("playerstates")
+				self._playerstates = nil
+			else
+				log("doesnt exist")
+			end]]
+
+			self._playerstates = CreatePlayerStatesPanel(self, chat_button_panel)
+		end
+	else
+		-- Destroy the status panel if it is present
+		if chat_button_panel ~= nil and self._playerstates ~= nil then
+			--chat_button_panel:child("playerstates"):clear()
+			--chat_button_panel:remove("playerstates")
+			self._playerstates = nil
+		end
+		-- Halt any fade animations
+		self._panel:stop()
+	end
+end)
 
 local chatkey = Idstring("toggle_chat")
-local special_btn_pressed_actual = ChatGui.special_btn_pressed
+--[[local special_btn_pressed_actual = ChatGui.special_btn_pressed
 function ChatGui:special_btn_pressed(button, ...)
 	if button == chatkey then
 		local tmp = nil
@@ -215,9 +301,41 @@ function ChatGui:special_btn_pressed(button, ...)
 	end
 
 	return special_btn_pressed_actual(self, button, ...)
-end
+end]]
 
-local mouse_pressed_actual = ChatGui.mouse_pressed
+
+Hooks:PreHook(ChatGui, "special_btn_pressed", "CHANGEME_ChatGui_special_btn_pressed", function(self, button, ...)
+	if button == chatkey then
+		local tmp = nil
+		local menucomponentmanager = managers.menu_component
+		if menucomponentmanager then
+			tmp = menucomponentmanager._player_inventory_gui
+			if tmp then
+				-- Pressing the key assigned to toggling chat while entering a name into the multi-profile GUI text field
+				-- triggers this, ensure that the chat panel is not invoked to prevent input glitching (and therefore the
+				-- complete loss of keyboard and mouse functionality, requiring game termination)
+				tmp = tmp._multi_profile_item
+				if tmp and tmp._editing then
+					return false
+				end
+			end
+
+			tmp = menucomponentmanager._blackmarket_gui
+			-- Consequences are far less severe for the Blackmarket custom name text field, but are still annoying nonetheless
+			if tmp and tmp._renaming_item then
+				return false
+			end
+
+			tmp = menucomponentmanager._skilltree_gui
+			-- Consequences are far less severe for the Skilltree skillset name text field, but are still annoying nonetheless
+			if tmp and tmp._renaming_skill_switch then
+				return false
+			end
+		end
+	end
+end)
+
+--[[local mouse_pressed_actual = ChatGui.mouse_pressed
 function ChatGui:mouse_pressed(button, x, y, ...)
 	if self.additional_data ~= nil and not self.additional_data.click_through_output_bg and self._crimenet_chat_state then
 		local chat_bg = self._panel:child("chat_bg")
@@ -262,9 +380,54 @@ function ChatGui:mouse_pressed(button, x, y, ...)
 	end
 
 	return mouse_pressed_actual(self, button, x, y, ...)
-end
+end]]
 
-local mouse_moved_actual = ChatGui.mouse_moved
+
+Hooks:PreHook(ChatGui, "mouse_pressed", "CHANGEME_ChatGui_mouse_pressed", function(self, button, x, y, ...)
+	if self.additional_data ~= nil and not self.additional_data.click_through_output_bg and self._crimenet_chat_state then
+		local chat_bg = self._panel:child("chat_bg")
+		if alive(chat_bg) then
+			-- No check for the button pressed here to ensure that all mouse buttons are blocked
+			if chat_bg:inside(x, y) and not self._input_panel:inside(x, y) then
+				-- From ChatGui:mouse_pressed()
+				if self._panel:child("output_panel"):inside(x, y) then
+					if button == Idstring("mouse wheel down") then
+						if self:mouse_wheel_down(x, y) then
+							self:set_scroll_indicators()
+							self:_on_focus()
+							return true
+						end
+					elseif button == Idstring("mouse wheel up") then
+						if self:mouse_wheel_up(x, y) then
+							self:set_scroll_indicators()
+							self:_on_focus()
+							return true
+						end
+					elseif button == Idstring("0") and self:check_grab_scroll_panel(x, y) then
+						self:set_scroll_indicators()
+						self:_on_focus()
+						return true
+					end
+				elseif button == Idstring("0") and self:check_grab_scroll_bar(x, y) then
+					self:set_scroll_indicators()
+					self:_on_focus()
+					return true
+				end
+
+				-- Only left mouse clicks are allowed to deactivate the input panel
+				if button == Idstring("0") then
+					self:_loose_focus()
+				end
+
+				-- Return true here to prevent MenuComponentManager:mouse_pressed() from proceeding to poll the mouse_pressed()
+				-- callbacks of other GUIs that may be underneath the chat GUI
+				return true
+			end
+		end
+	end
+end)
+
+--[[local mouse_moved_actual = ChatGui.mouse_moved
 function ChatGui:mouse_moved(x, y, ...)
 	if self.additional_data ~= nil then
 		if self._crimenet_chat_state and not self.additional_data.click_through_output_bg then
@@ -281,14 +444,31 @@ function ChatGui:mouse_moved(x, y, ...)
 	end
 
 	return mouse_moved_actual(self, x, y, ...)
-end
+end]]
+
+
+Hooks:PreHook(ChatGui, "mouse_moved", "CHANGEME_ChatGui_mouse_moved", function(self, x, y, ...)
+	if self.additional_data ~= nil then
+		if self._crimenet_chat_state and not self.additional_data.click_through_output_bg then
+			local chat_bg = self._panel:child("chat_bg")
+			if alive(chat_bg) and chat_bg:inside(x, y) and not self._input_panel:inside(x, y) then
+				-- Return true here to prevent MenuComponentManager:mouse_moved() from proceeding to poll the mouse_moved()
+				-- callbacks of other GUIs that may be underneath the chat GUI
+				return true, "arrow"
+			end
+		else
+			-- Referenced by the ChatGui:_animate_show_component_icaps() and ChatGui:_animate_fade_output_icaps() coroutines
+			self.icaps_mouse_inside_panel = self._panel:inside(x, y)
+		end
+	end
+end)
 
 -- Hooking ChatGui:_show_crimenet_chat() and ChatGui:_hide_crimenet_chat() instead of ChatGui:toggle_crimenet_chat() to ensure
 -- that any game GUI components that open / close the chat panel will always trigger a call to
 -- InventoryChatAndPlayerStates:RealignPlayerStates(), even if they do not call ChatGui:toggle_crimenet_chat() (such as
 -- PrePlanningMapGui:toggle_drawboard())
 
-local _show_crimenet_chat_actual = ChatGui._show_crimenet_chat
+--[[local _show_crimenet_chat_actual = ChatGui._show_crimenet_chat
 function ChatGui:_show_crimenet_chat(...)
 	_show_crimenet_chat_actual(self, ...)
 	-- Automatically begin accepting input
@@ -307,9 +487,29 @@ function ChatGui:_show_crimenet_chat(...)
 	InventoryChatAndPlayerStates:RealignPlayerStates()
 
 	self._panel:set_alpha(1)
-end
+end]]
 
-local _hide_crimenet_chat_actual = ChatGui._hide_crimenet_chat
+
+Hooks:PostHook(ChatGui, "_show_crimenet_chat", "CHANGEME_ChatGui__show_crimenet_chat", function(self, ...)
+	-- Automatically begin accepting input
+	--self:_on_focus()
+
+	if not alive(self._panel) or not alive(self._hud_panel) then
+		return
+	end
+
+	-- Elementary, OVK. How did you even manage to screw this one up? Thanks for wasting several hours of my life with that
+	-- oversight. Long story short, this change forces the entire chat GUI to align itself to the chat button panel's absolute
+	-- (rather than relative) position. The relative position never changes regardless of where the chat button panel is
+	-- positioned on screen, but the absolute position (obviously) does change
+	self._panel:set_bottom(self._hud_panel:child("chat_button_panel"):child("chat_button"):world_top())
+
+	InventoryChatAndPlayerStates:RealignPlayerStates()
+
+	self._panel:set_alpha(1)
+end)
+
+--[[local _hide_crimenet_chat_actual = ChatGui._hide_crimenet_chat
 function ChatGui:_hide_crimenet_chat(...)
 	_hide_crimenet_chat_actual(self, ...)
 
@@ -326,9 +526,26 @@ function ChatGui:_hide_crimenet_chat(...)
 
 	-- This will be stomped in ChatGui:set_params() if necessary
 	self._panel:set_alpha(0)
-end
+end]]
 
-local receive_message_actual = ChatGui.receive_message
+
+Hooks:PostHook(ChatGui, "_hide_crimenet_chat", "CHANGEME_ChatGui__hide_crimenet_chat", function(self, ...)
+	if not alive(self._panel) or not alive(self._hud_panel) then
+		return
+	end
+
+	-- Apparently the game code 'hides' the chat panel by moving it offscreen rather than hiding it or setting its alpha to 0,
+	-- revert the positioning change and do it the proper way
+	self._panel:set_bottom(self._hud_panel:child("chat_button_panel"):child("chat_button"):world_top())
+
+	-- Realigning here is fine since the following code only deals with visibility rather than positioning
+	InventoryChatAndPlayerStates:RealignPlayerStates()
+
+	-- This will be stomped in ChatGui:set_params() if necessary
+	self._panel:set_alpha(0)
+end)
+
+--[[local receive_message_actual = ChatGui.receive_message
 function ChatGui:receive_message(...)
 	receive_message_actual(self, ...)
 
@@ -354,7 +571,33 @@ function ChatGui:receive_message(...)
 		panel:animate(callback(self, self, "_animate_show_component_icaps"), panel:alpha(), alpha)
 		panel:animate(callback(self, self, "_animate_fade_output_icaps"), alpha)
 	end
-end
+end]]
+
+
+Hooks:PostHook(ChatGui, "receive_message", "CHANGEME_ChatGui_receive_message", function(self, ...)
+	-- Reveal the chat panel as a non-interactive 'ghost' panel upon receiving a message when it is closed
+	local panel = self._panel
+	if self.additional_data ~= nil and self._animate_fade_output_icaps ~= nil and alive(panel) and not self._crimenet_chat_state then
+		local alpha = 0.55
+		if InventoryChatAndPlayerStates ~= nil and InventoryChatAndPlayerStates.GhostAlpha ~= nil then
+			alpha = InventoryChatAndPlayerStates.GhostAlpha
+		end
+		-- Snap the chat log to the most recent entry (otherwise ghosting the panel is pointless)
+		local output_panel = panel:child("output_panel")
+		if not alive(output_panel) then
+			return
+		end
+		local scroll_panel = output_panel:child("scroll_panel")
+		if not alive(scroll_panel) then
+			return
+		end
+		scroll_panel:set_bottom(output_panel:h())
+		self:set_scroll_indicators()
+		panel:stop()
+		panel:animate(callback(self, self, "_animate_show_component_icaps"), panel:alpha(), alpha)
+		panel:animate(callback(self, self, "_animate_fade_output_icaps"), alpha)
+	end
+end)
 
 -- Derived from ChatGui:_animate_show_component() (U97.3)
 function ChatGui:_animate_show_component_icaps(panel, start_alpha, target_alpha)

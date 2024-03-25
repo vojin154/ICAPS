@@ -1,4 +1,4 @@
-
+--[[
 if InventoryChatAndPlayerStates_ContractBoxGui_Hooked then
 	return
 else
@@ -92,3 +92,4 @@ function ContractBoxGui:UpdateJobPlanIcon(icaps)
 		end
 	end
 end
+]]

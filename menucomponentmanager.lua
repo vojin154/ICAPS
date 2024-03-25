@@ -67,6 +67,8 @@ local components_to_find = {
 
 -- Affects all blackmarket screens (weapons, weapon mods, equipment, throwables, masks, materials, etc.)
 components_to_find.blackmarket = components_to_find.skilltree
+--fix icaps panel being moved to the middle of the screen for some reason
+
 components_to_find.inventory = components_to_find.skilltree
 -- This is actually a bogus identifier that is injected by this mod (see Logic:init()) since the preview nodes do not have any
 -- easily identifiable components (they only have "menuscene_info", which is also common to other nodes)
