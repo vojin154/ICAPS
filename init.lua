@@ -54,6 +54,10 @@ Hooks:Add("LocalizationManagerPostInit", "LocalizationManagerPostInit_InventoryC
 	loc:load_localization_file(commonpath .. "english.txt", false)
 end)
 
+function InventoryChatAndPlayerStates:GetHookID(id) --Incase I end up changing something, so I don't have to change every hook id like an idiot..
+	return id .. "_icaps"
+end
+
 function InventoryChatAndPlayerStates:RetrievePlayerStatesPanel()
 	-- The alive() checks are very important, or unexplained crashes may occur when calling any of the panels' functions
 	local game_chat_gui = managers.menu_component ~= nil and managers.menu_component._game_chat_gui or nil
@@ -202,6 +206,10 @@ local function pulse(panel)
 end
 
 function InventoryChatAndPlayerStates:UpdatePlayerStates(peer_id, menustate)
+	if Utils:IsInHeist() then --UpdatePlayerStates seems to run even when the player is spawned in, and that causes errors.
+		return
+	end
+
 	local playerstates_panel = self:RetrievePlayerStatesPanel()
 	if playerstates_panel == nil then
 		return

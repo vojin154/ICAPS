@@ -26,7 +26,7 @@ function HUDMissionBriefing:set_player_slot(nr, ...)
 end]]
 
 
-Hooks:PostHook(HUDMissionBriefing, "set_player_slot", "CHANGEME_HUDMissionBriefing_set_player_slot", function(self, nr, ...)
+Hooks:PostHook(HUDMissionBriefing, "set_player_slot", InventoryChatAndPlayerStates:GetHookID("set_player_slot"), function(self, nr, ...)
 	-- Not exactly sure why this happens since it *never* happens for me - not even once, but apparently it occurs for someone
 	-- (probably the result of some other mod messing up and deviating from standard behavior >.> )
 	-- http://forums.lastbullet.net/showthread.php?tid=1273&pid=5464#pid5464
@@ -52,7 +52,7 @@ function HUDMissionBriefing:set_slot_joining(peer, peer_id, ...)
 	end
 end]]
 
-Hooks:PostHook(HUDMissionBriefing, "set_slot_joining", "CHANGEME_HUDMissionBriefing_set_slot_joining", function(self, peer, peer_id, ...)
+Hooks:PostHook(HUDMissionBriefing, "set_slot_joining", InventoryChatAndPlayerStates:GetHookID("set_slot_joining"), function(self, peer, peer_id, ...)
 	if InventoryChatAndPlayerStates ~= nil then
 		InventoryChatAndPlayerStates.PeerStates[peer_id].state = InventoryChatAndPlayerStates.StateValues.InitialJoin
 		InventoryChatAndPlayerStates:UpdatePlayerStates(peer_id, nil)
@@ -73,7 +73,7 @@ function HUDMissionBriefing:set_slot_ready(peer, peer_id, ...)
 end]]
 
 
-Hooks:PostHook(HUDMissionBriefing, "set_slot_ready", "CHANGEME_HUDMissionBriefing_set_slot_ready", function(self, peer, peer_id, ...)
+Hooks:PostHook(HUDMissionBriefing, "set_slot_ready", InventoryChatAndPlayerStates:GetHookID("set_slot_ready"), function(self, peer, peer_id, ...)
 	if InventoryChatAndPlayerStates ~= nil then
 		-- If that player is able to send their ready state to the local player, consider them to be fully connected (will be
 		-- stomped if necessary by HUDMissionBriefing:set_dropin_progress() below)
@@ -97,7 +97,7 @@ function HUDMissionBriefing:set_slot_not_ready(peer, peer_id, ...)
 end]]
 
 
-Hooks:PostHook(HUDMissionBriefing, "set_slot_not_ready", "CHANGEME_HUDMissionBriefing_set_slot_not_ready", function(self, peer, peer_id, ...)
+Hooks:PostHook(HUDMissionBriefing, "set_slot_not_ready", InventoryChatAndPlayerStates:GetHookID("set_slot_not_ready"), function(self, peer, peer_id, ...)
 	if InventoryChatAndPlayerStates ~= nil then
 		-- If that player is able to send their ready state to the local player, consider them to be fully connected (will be
 		-- stomped if necessary by HUDMissionBriefing:set_dropin_progress() below)
@@ -122,7 +122,7 @@ function HUDMissionBriefing:set_dropin_progress(peer_id, progress_percentage, mo
 end]]
 
 
-Hooks:PostHook(HUDMissionBriefing, "set_dropin_progress", "CHANGEME_HUDMissionBriefing_set_dropin_progress", function(self, peer_id, progress_percentage, mode, ...)
+Hooks:PostHook(HUDMissionBriefing, "set_dropin_progress", InventoryChatAndPlayerStates:GetHookID("set_dropin_progress"), function(self, peer_id, progress_percentage, mode, ...)
 	-- Optimization: Local accesses are faster than global lookups, cache the result of the initial global lookup. This still
 	-- incurs at least one global lookup per call, but it's still dramatically less than before (six global lookups)
 	local icaps = InventoryChatAndPlayerStates
@@ -144,7 +144,7 @@ function HUDMissionBriefing:remove_player_slot_by_peer_id(peer, reason, ...)
 end]]
 
 
-Hooks:PostHook(HUDMissionBriefing, "remove_player_slot_by_peer_id", "remove_player_slot_by_peer_id_icaps", function(self, peer, reason, ...)
+Hooks:PostHook(HUDMissionBriefing, "remove_player_slot_by_peer_id", InventoryChatAndPlayerStates:GetHookID("remove_player_slot_by_peer_id"), function(self, peer, reason, ...)
 	if InventoryChatAndPlayerStates ~= nil then
 		InventoryChatAndPlayerStates.PeerStates[peer:id()] = nil
 		InventoryChatAndPlayerStates:UpdatePlayerStates(peer:id(), nil)

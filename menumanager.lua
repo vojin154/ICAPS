@@ -15,7 +15,7 @@ function MenuManager:_set_peer_sync_state(peer_id, state, ...)
 end]]
 
 
-Hooks:PostHook(MenuManager, "_set_peer_sync_state", "_set_peer_sync_state_icaps", function(self, peer_id, state, ...)
+Hooks:PostHook(MenuManager, "_set_peer_sync_state", InventoryChatAndPlayerStates:GetHookID("_set_peer_sync_state"), function(self, peer_id, state, ...)
 	InventoryChatAndPlayerStates:UpdatePlayerStates(peer_id, state)
 end)
 
@@ -75,7 +75,7 @@ function MenuManager:_node_selected(menu_name, node, ...)
 end]]
 
 
-Hooks:PostHook(MenuManager, "_node_selected", "_node_selected_icaps", function(self, menu_name, node, ...)
+Hooks:PostHook(MenuManager, "_node_selected", InventoryChatAndPlayerStates:GetHookID("_node_selected"), function(self, menu_name, node, ...)
 	-- Ugly workaround for state synching when customizing weapons or masks (why wasn't this implemented, OVK? You do realize
 	-- that not implementing this only causes hosts to ignore players who are in the inventory anyway since that state text never
 	-- changes to show that they are actually actively doing something)

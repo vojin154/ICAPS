@@ -17,7 +17,7 @@ function BaseNetworkSession:add_peer(name, rpc, in_lobby, loading, synched, id, 
 	return add_peer_actual(self, name, rpc, in_lobby, loading, synched, id, ...)
 end]]
 
-Hooks:PreHook(BaseNetworkSession, "add_peer", "add_peer_icaps", function(self, name, rpc, in_lobby, loading, synched, id, ...)
+Hooks:PreHook(BaseNetworkSession, "add_peer", InventoryChatAndPlayerStates:GetHookID("add_peer"), function(self, name, rpc, in_lobby, loading, synched, id, ...)
 	if InventoryChatAndPlayerStates ~= nil then
 		InventoryChatAndPlayerStates.PeerStates[id] = {}
 		InventoryChatAndPlayerStates:UpdatePlayerStates(id, nil)
@@ -37,7 +37,7 @@ end
 Hooks:Add("BaseNetworkSessionOnPeerRemoved", "InventoryChatAndPlayerStates_BaseNetworkSession__on_peer_removed", BaseNetworkSession__on_peer_removed)]]
 
 
-Hooks:PreHook(BaseNetworkSession, "remove_peer", "remove_peer_icaps", function(self, peer, peer_id, reason)
+Hooks:PreHook(BaseNetworkSession, "remove_peer", InventoryChatAndPlayerStates:GetHookID("remove_peer"), function(self, peer, peer_id, reason)
 	if InventoryChatAndPlayerStates ~= nil then
 		-- The player is disconnecting, delete their table
 		InventoryChatAndPlayerStates.PeerStates[peer_id] = nil

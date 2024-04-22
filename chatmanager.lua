@@ -183,7 +183,7 @@ function ChatGui:set_params(params, ...)
 end]=]
 
 
-Hooks:PostHook(ChatGui, "set_params", "CHANGEME_ChatGui_set_params", function(self, params, ...)
+Hooks:PostHook(ChatGui, "set_params", InventoryChatAndPlayerStates:GetHookID("set_params"), function(self, params, ...)
 	local chat_button_panel = self._hud_panel:child("chat_button_panel")
 	if chat_button_panel ~= nil and not alive(chat_button_panel) then
 		chat_button_panel = nil
@@ -303,7 +303,7 @@ function ChatGui:special_btn_pressed(button, ...)
 end]]
 
 
-Hooks:PreHook(ChatGui, "special_btn_pressed", "CHANGEME_ChatGui_special_btn_pressed", function(self, button, ...)
+Hooks:PreHook(ChatGui, "special_btn_pressed", InventoryChatAndPlayerStates:GetHookID("special_btn_pressed"), function(self, button, ...)
 	if button == chatkey then
 		local tmp = nil
 		local menucomponentmanager = managers.menu_component
@@ -382,7 +382,7 @@ function ChatGui:mouse_pressed(button, x, y, ...)
 end]]
 
 
-Hooks:PreHook(ChatGui, "mouse_pressed", "CHANGEME_ChatGui_mouse_pressed", function(self, button, x, y, ...)
+Hooks:PreHook(ChatGui, "mouse_pressed", InventoryChatAndPlayerStates:GetHookID("mouse_pressed"), function(self, button, x, y, ...)
 	if self.additional_data ~= nil and not self.additional_data.click_through_output_bg and self._crimenet_chat_state then
 		local chat_bg = self._panel:child("chat_bg")
 		if alive(chat_bg) then
@@ -446,7 +446,7 @@ function ChatGui:mouse_moved(x, y, ...)
 end]]
 
 
-Hooks:PreHook(ChatGui, "mouse_moved", "CHANGEME_ChatGui_mouse_moved", function(self, x, y, ...)
+Hooks:PreHook(ChatGui, "mouse_moved", InventoryChatAndPlayerStates:GetHookID("mouse_moved"), function(self, x, y, ...)
 	if self.additional_data ~= nil then
 		if self._crimenet_chat_state and not self.additional_data.click_through_output_bg then
 			local chat_bg = self._panel:child("chat_bg")
@@ -489,7 +489,7 @@ function ChatGui:_show_crimenet_chat(...)
 end]]
 
 
-Hooks:PostHook(ChatGui, "_show_crimenet_chat", "CHANGEME_ChatGui__show_crimenet_chat", function(self, ...)
+Hooks:PostHook(ChatGui, "_show_crimenet_chat", InventoryChatAndPlayerStates:GetHookID("_show_crimenet_chat"), function(self, ...)
 	-- Automatically begin accepting input
 	--self:_on_focus()
 
@@ -528,7 +528,7 @@ function ChatGui:_hide_crimenet_chat(...)
 end]]
 
 
-Hooks:PostHook(ChatGui, "_hide_crimenet_chat", "CHANGEME_ChatGui__hide_crimenet_chat", function(self, ...)
+Hooks:PostHook(ChatGui, "_hide_crimenet_chat", InventoryChatAndPlayerStates:GetHookID("_hide_crimenet_chat"), function(self, ...)
 	if not alive(self._panel) or not alive(self._hud_panel) then
 		return
 	end
@@ -573,7 +573,7 @@ function ChatGui:receive_message(...)
 end]]
 
 
-Hooks:PostHook(ChatGui, "receive_message", "CHANGEME_ChatGui_receive_message", function(self, ...)
+Hooks:PostHook(ChatGui, "receive_message", InventoryChatAndPlayerStates:GetHookID("receive_message"), function(self, ...)
 	-- Reveal the chat panel as a non-interactive 'ghost' panel upon receiving a message when it is closed
 	local panel = self._panel
 	if self.additional_data ~= nil and self._animate_fade_output_icaps ~= nil and alive(panel) and not self._crimenet_chat_state then

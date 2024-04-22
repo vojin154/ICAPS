@@ -16,7 +16,7 @@ function MenuKitRenderer:_set_player_slot(nr, ...)
 end]]
 
 
-Hooks:PreHook(MenuKitRenderer, "_set_player_slot", "_set_player_slot_icaps", function(self, nr, ...)
+Hooks:PreHook(MenuKitRenderer, "_set_player_slot", InventoryChatAndPlayerStates:GetHookID("_set_player_slot"), function(self, nr, ...)
 	if InventoryChatAndPlayerStates ~= nil then
 		InventoryChatAndPlayerStates.PeerStates[nr] = InventoryChatAndPlayerStates.PeerStates[nr] or {}
 	end
@@ -35,7 +35,7 @@ function MenuKitRenderer:_entered_menu(...)
 end]]
 
 
-Hooks:PreHook(MenuKitRenderer, "_entered_menu", "_entered_menu_icaps", function(self, ...)
+Hooks:PreHook(MenuKitRenderer, "_entered_menu", InventoryChatAndPlayerStates:GetHookID("_entered_menu"), function(self, ...)
 	if InventoryChatAndPlayerStates ~= nil then
 		for peer_id, __ in pairs(managers.network:session():peers()) do
 			InventoryChatAndPlayerStates.PeerStates[peer_id] = InventoryChatAndPlayerStates.PeerStates[peer_id] or {}

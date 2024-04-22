@@ -36,7 +36,7 @@ function PlayerInventoryGui:init(...)
 end]]
 
 
-Hooks:PostHook(PlayerInventoryGui, "init", "init_icaps", function(self, ...)
+Hooks:PostHook(PlayerInventoryGui, "init", InventoryChatAndPlayerStates:GetHookID("init"), function(self, ...)
 	if not MenuCallbackHandler:is_multiplayer() or not managers.network:session() then
 		return
 	end
@@ -63,6 +63,6 @@ Hooks:PostHook(PlayerInventoryGui, "init", "init_icaps", function(self, ...)
 	--boxpanel:set_bottom(boxpanel:bottom() - (current_bottom - basepanel:bottom())) wtf does this do?
 end)
 
-Hooks:PostHook(PlayerInventoryGui, "open_armor_menu", "open_armor_menu_icaps", function(self, selected_tab, ...)
+Hooks:PostHook(PlayerInventoryGui, "open_armor_menu", InventoryChatAndPlayerStates:GetHookID("open_armor_menu"), function(self, selected_tab, ...)
 	--todo: move search box
 end)
